@@ -12,15 +12,13 @@ if (typeof window === "object" && (typeof ENVIRONMENT_IS_PTHREAD === 'undefined'
     var emrun_should_close_itself = false;
     function postExit(msg) {
       var http = new XMLHttpRequest();
-      http.onreadystatechange = function() {
-        if (http.readyState == 4 /*DONE*/) {
-          try {
-            // Try closing the current browser window, since it exit()ed itself. This can shut down the browser process
-            // and emrun does not need to kill the whole browser process.
-            if (typeof window !== 'undefined' && window.close) window.close();
-          } catch(e) {}
-        }
-      }
+      http.onload = http.onerror = function() {
+        try {
+          // Try closing the current browser window, since it exit()ed itself. This can shut down the browser process
+          // and emrun does not need to kill the whole browser process.
+          if (typeof window !== 'undefined' && window.close) window.close();
+        } catch(e) {}
+      };
       http.open("POST", "stdio.html", true);
       http.send(msg);
     }
